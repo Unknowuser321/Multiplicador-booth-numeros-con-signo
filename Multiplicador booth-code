@@ -1,0 +1,198 @@
+INIT_loop:	MOV ACC, CTE	#Trae la direccion de Q al ACC
+	          Q	# CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q en el ACC
+Find_LSB_Q:	LSB ACC	#Obtiene el lsb(Q) en ACC
+-LSB_Q:	    INV ACC	#Invierte los valores de LSB(Q)
+          	MOV A, ACC	#Lo guarda en A
+          	MOV ACC, CTE	#Trae el valor de 1
+          	0x01	# CTE - 0x01
+          	ADD ACC, A	#Realiza la suma entre LSB(Q)[INV] + 1 y lo guarda en ACC
+          	MOV A, ACC	#Guarda en A el LSB(Q) en CompA2
+Load_Q-1:	  MOV ACC, CTE	#Trae la direccion de Q-1 al ACC
+          	Q-1	# CTE - Q-1
+          	MOV DPTR, ACC	#Carga la direccion de Q-1 al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q-1 en el ACC
+          	ADD ACC, A	#Hace la suma entre Q-1 y -LSB(Q)
+Equal_Values:	JZ	#Si la resta es == 0, salta a L_S_R a hacer el logical shift right sin ninguna operación (Resta/Suma), ya que 1-1=0, son iguales
+	          L_S_R	#Label - L_S_R
+Load_Q:	    MOV ACC, CTE	#Son diferentes, entonces continua, carga la direccion de Q en el ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q en el ACC
+Find_LSB_Q:	LSB ACC	#Obtiene el lsb(Q) en ACC
+          	MOV A, ACC	#Guarda el lsb(Q) en A
+Different_Values:	MOV ACC, CTE	#Carga en el ACC un -1
+          	0xFF	#CTE - -1
+Check_LSB_Q:ADD ACC, A	#Resta LSB(Q) y -1
+          	JZ	#Si es ==0, significa que LSB(Q)=1, osea 1 0, se hace una resta
+          	Resta	#Label - Resta
+Suma:	      MOV ACC, CTE	#Es !=0, significa que LSB(Q)=0, osea 0 1, se hace una suma. Trae la direccion de A_var al ACC
+          	A_var	# CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de A_var en el ACC
+          	MOV A, ACC	#Guarda el contenido de A_var en A
+          	MOV ACC, CTE	#Carga la direccion de M en el ACC
+          	M	#CTE - M
+          	MOV DPTR, ACC	#Carga la direccion de M en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de M en el ACC
+          	ADD ACC, A	#Se realiza la Suma entre A y M
+          	MOV A, ACC	#Se guarda el resultado de la suma en A
+Jump_updt_A:JMP	#Salta a actualizar A_var
+          	Updt_A_var	#Label - Updt_A_var
+Resta:	    MOV ACC, CTE	#Carga la direccion de M en el ACC
+          	M	#CTE - M
+          	MOV DPTR, ACC	#Carga la direccion de M en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de M en el ACC
+-M:	        INV ACC	#Invierte los valores de M
+          	MOV A, ACC	#Guarda los valores invertidos en A
+          	MOV ACC, CTE	#Trae un 1 al ACC
+          	0x01	#CTE - 0x01
+          	ADD ACC, A	#Hace la suma entre M(INV) y 1
+          	MOV A, ACC	#Se guarda el M en compA2 en A
+          	MOV ACC, CTE	#Trae la direccion de A_var al ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de A_var en el ACC
+          	ADD ACC, A	#Realiza la suma entre -M y A_var
+          	MOV A, ACC	#Se guarda la resta en A
+Updt_A_var:	MOV ACC, CTE	#Trae la direccion de A_var al ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var en el DPTR
+          	MOV ACC, A	#Carga el resultado de las operaciones al ACC
+          	MOV [DPTR], ACC	#Actualiza A_var con el resultado de las operaciones 
+L_S_R:	    MOV ACC, CTE	#Carga la direccion de Q al ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q al ACC
+Find_LSB_Q:	LSB ACC	#Obtiene el lsb(Q) en ACC
+	          MOV A, ACC	#Guarda el lsb(Q) en A
+Updt_Q-1:	  MOV ACC, CTE	#Trae la direccion de Q-1 al ACC
+	          Q-1	#CTE - Q-1
+	          MOV DPTR, ACC	#Carga la direccion de Q-1 al DPTR
+	          MOV ACC, A	#Guarda el lsb(Q) en ACC
+	          MOV [DPTR], ACC	#Actualiza Q-1 con el lsb(Q)
+LSR_Q:	    MOV ACC, CTE	#Trae la direccion de Q al ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q en el ACC
+          	LSR ACC	#Hace el logical shift right de Q
+          	MOV A, ACC	#Guarda el LSR(Q) en A
+Updt_Q:	    MOV ACC, CTE	#Trae la direccion de Q al ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q al DPTR
+          	MOV ACC, A	#Guarda el LSR(Q) en ACC
+          	MOV [DPTR], ACC	#Actualiza Q con el LSR(Q) 
+Load_LSB_A:	MOV ACC, CTE	#Carga la direccion de A_var en el ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de A_var en el ACC
+          	LSB ACC	#Obtiene el lsb(A_var) en el ACC
+          	JZ	#Si el lsb(A_var)==0, salta a 0_AND_Q, para convertir el bit mas significativo de Q en 0
+          	0_AND_Q	#Label - 0_AND_Q
+1_OR_Q:	    MOV ACC, CTE	#Si el lsb(A_var)!=0, continua a 1_OR_Q para convertir el bit mas significativo de Q en 1. Carga la direccion de Q al ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q al ACC
+          	MOV A, ACC	#Guarda el contenido de Q en A
+          	MOV ACC, CTE	#Carga la direccion de Mask_OR en el ACC
+          	Mask_OR	#CTE - Mask_OR
+          	MOV DPTR, ACC	#Carga la direccion de Mask_OR en el DPTR
+          	MOV ACC, [DPTR]	#Guarda el contenido de Mask_OR en ACC
+          	OR ACC, A	#Realiza el OR entre Q y Mask_OR(10000000)
+          	MOV A, ACC	#Guardar el resultado en A
+          	JMP	#Salta Updt_Q_AND_OR para actualizar Q
+          	Updt_Q_AND_OR	#Label - Updt_Q_AND_OR
+0_AND_Q:	  MOV ACC, CTE	#Carga la direccion de Q en el ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q en el ACC
+          	MOV A, ACC	#Guardamos el contenido de Q en el ACC
+          	MOV ACC, CTE	#Cargamos la direccion de Mask_AND en ACC
+          	Mask_AND	#CTE - Mask_AND
+          	MOV DPTR, ACC	#Carga la direccion de Mask_AND en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Mask_AND en el ACC
+          	AND ACC, A	#Realiza el AND entre Q y Mask_AND(01111111)
+          	MOV A, ACC	#Guarda el resultado en A
+Updt_Q_AND_OR:MOV ACC, CTE	#Carga la direccion de Q en el ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q en el DPTR
+          	MOV ACC, A	#Guarda el resultado de las diferentes mascaras en el ACC
+          	MOV [DPTR], ACC	#Actualiza Q con el resultado
+Load_MSB_A:	MOV ACC, CTE	#Carga la direccion de A_var en el ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var en el DPTR
+          	MOV ACC, CTE	#Carga un 10000000 al ACC
+          	0x80	# CTE - 0x80
+          	MOV A, ACC	# Carga 0x80 en A
+          	MOV ACC, [DPTR]	# Carga el contenido de A_var en el ACC
+          	AND ACC, A	#Realiza el AND entre A_var y 10000000, para obtener el MSB(A_var)
+Comparacion_MSB:JZ	#Si MSB(A_var)==0, salta a 0_AND_A, a realizar el LSR(A_var) y convertir el MSB(A_var)=0
+          	0_AND_A	#Label - 0_AND_A
+1_OR_A:	    MOV ACC, CTE	#Si MSB(A_var)!=0, continua en el label 1_OR_A, para realizar el LSR(A_var) y convertir el MSB(A_var)=1. Carga &A_var en ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de A_var en el ACC
+          	LSR ACC	#Realiza el logical shift right de A_var
+          	MOV A, ACC	#Guarda el LSR(A_var) en A
+          	MOV ACC, CTE	#Carga la direccion de Mask_OR en el ACC
+          	Mask_OR	#CTE - Mask_OR
+          	MOV DPTR, ACC	#Carga la direccion de Mask_OR en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Mask_OR en el ACC
+          	OR ACC, A	#Realiza un OR entre LSR(A_var) y Mask_OR(10000000)
+          	MOV A, ACC	#Guarda el resultado en A
+          	JMP	#Salta a actualizar A_var
+          	Updt_A_AND_OR	#Label - Updt_A_AND_OR
+0_AND_A:	  MOV ACC, CTE	#Carga la direccion de A_var en el ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var al DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de A_var en el ACC
+          	LSR ACC	#Realiza el logical shift right de A_var
+          	MOV A, ACC	#Guarda el LSR(A_var) en A
+          	MOV ACC, CTE	#Carga la direccion de Mask_AND en el ACC
+          	Mask_AND	#CTE - Mask_AND
+          	MOV DPTR, ACC	#Carga la direccion de Mask_AND en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Mask_AND en el ACC
+          	AND ACC, A	#Se realiza el AND entre LSR(A_var) y Mask_AND(01111111)
+          	MOV A, ACC	#Guarda el resultado en A
+Updt_A_AND_OR:MOV ACC, CTE	#Carga la direccion de A_var al ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var al DPTR
+          	MOV ACC, A	#Carga el resultado de la AND o de la OR en el ACC
+          	MOV [DPTR], ACC	#Actualiza A_var con el resultado 
+Test_loop:	MOV ACC, CTE	#Carga un -1 al ACC
+          	0xFF	#CTE - -1
+          	MOV A, ACC	#Guardamos el -1 en A
+          	MOV ACC, CTE	#Cargamos la direccion de count en el ACC
+          	count	#CTE - count
+          	MOV DPTR, ACC	#Cargamos la direccion de count en el DPTR
+          	MOV ACC, [DPTR]	#Cargamos el contenido de count en el ACC
+          	ADD ACC, A	#Se realiza la resta entre el count y -1
+          	MOV A, ACC	#El resultado de la resta se guarda en A
+Updt_count:	MOV ACC, CTE	#Cargamos la direccion de count en el ACC
+          	count	#CTE - count 
+          	MOV DPTR, ACC	#Cargamos la direccion de count en el DPTR
+          	MOV ACC, A	#Cargamos el count-1 en el ACC
+          	MOV [DPTR], ACC	#Actualizamos el count 
+          	MOV ACC, A	#Cargamos el count-1 en el ACC, arroja una bandera si es 0
+          	JZ	#Si es ==0, salta al label END_loop
+GoTo_END_LOOP:END_loop	#Label - END_loop
+          	JMP	#Si es !=0, salta al label INIT_loop para volver a comenzar la secuencia 
+          	INIT_loop	#Label - INIT_loop
+END_loop:	  MOV ACC, CTE	#Carga la direccion de A_var en el ACC
+          	A_var	#CTE - A_var
+          	MOV DPTR, ACC	#Carga la direccion de A_var en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de A_var en el ACC
+          	MOV A, ACC	#Guarda el contenido de A_var en A
+          	MOV ACC, CTE	#Carga la direccion de Q al ACC
+          	Q	#CTE - Q
+          	MOV DPTR, ACC	#Carga la direccion de Q en el DPTR
+          	MOV ACC, [DPTR]	#Carga el contenido de Q en el ACC
+END_Program:HALT	#Finaliza el programa
+        Q:	0xFD	#Multiplicador 74
+        M:	0x07	#Multiplicando -62
+        Q-1:0x00	#00000000
+      A_var:0x00	#00000000
+      count:0x08	#0x80 == 8 
+   Mask_AND:0x7F	#01111111
+    Mask_OR:0x80	#10000000
